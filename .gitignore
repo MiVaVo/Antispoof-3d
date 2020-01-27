@@ -1,0 +1,15 @@
+zhenya/
+librealsense/
+old/3d_output/
+*.tar.gz
+*.gz
+.idea/
+__pycache__/
+*.joblib
+ext/ds/
+*.csv
+*.jpg
+TestData/
+Opend3D/
+old/
+ext/ds/*
