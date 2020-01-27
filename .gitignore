@@ -1,0 +1,15 @@
+zhenya/
+librealsense/
+*.tar.gz
+*.gz
+.idea/
+__pycache__/
+*.joblib
+!src/models/models9.joblib
+ext/ds/
+*.csv
+*.jpg
+TestData/
+Opend3D/
+ext/ds/*
+localfiles/

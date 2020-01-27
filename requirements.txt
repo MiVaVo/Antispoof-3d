@@ -1,0 +1,8 @@
+opencv_contrib_python==4.1.2.30
+dlib==19.19.0
+pyrealsense2==2.31.0.1235
+numpy==1.18.1
+open3d==0.9.0.0
+joblib==0.14.1
+matplotlib==3.1.2
+scikit_learn==0.22.1
