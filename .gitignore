@@ -6,6 +6,7 @@ old/3d_output/
 .idea/
 __pycache__/
 *.joblib
+!src/models/models9.joblib
 ext/ds/
 *.csv
 *.jpg
