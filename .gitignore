@@ -1,5 +1,6 @@
 zhenya/
 librealsense/
+old/3d_output/
 *.tar.gz
 *.gz
 .idea/
@@ -11,5 +12,5 @@ ext/ds/
 *.jpg
 TestData/
 Opend3D/
-ext/ds/*
 localfiles/
+ext/ds/*
