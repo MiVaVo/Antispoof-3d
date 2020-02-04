@@ -6,7 +6,23 @@ from datetime import datetime as dt
 import cv2
 import numpy as np
 
+from functools import wraps
+from time import time
 
+def timing(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        function_name=f.__name__
+        start=dt.now()
+        result = f(*args, **kwargs)
+        end=dt.now()
+        print(f'Elapsed time of {function_name:>30}  {(end-start).total_seconds():>20.1}')
+        return result
+    return wrapper
+
+
+
+@timing
 def classify(classifier, distances):
     if isinstance(classifier, list):
         # prob_of_fake={clf.__class__.__name__:clf.predict_proba(get_statistics(distances[np.newaxis,:]))[0,0] for clf in classifier}

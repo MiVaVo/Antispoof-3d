@@ -1,6 +1,37 @@
+from functools import wraps
+
 import cv2
 import dlib
 import numpy as np
+
+def take_care_of_large_img(f):
+    @wraps(f)
+    def wrapper(*args):
+        image_height=args[1].shape[0]
+        if image_height==720:
+            downsize_factor = 4
+        elif image_height==480:
+            downsize_factor = 2
+        else:
+            downsize_factor = 1
+
+        new_tuple=[None,None]
+        new_tuple[0]=args[0]
+        new_tuple[1]=cv2.resize(args[1],None,fx=1/downsize_factor,fy=1/downsize_factor)
+        args=tuple(new_tuple)
+        result = f(*args)
+        old_rectangles=result[0]
+        old_dots=result[1]
+        new_dots=[]
+        for dots_array in old_dots:
+            new_dots.append(dots_array*downsize_factor)
+        new_rectangles=dlib.rectangles([dlib.rectangle(int(rect.left()*downsize_factor),
+                                        int(rect.top()*downsize_factor),
+                                        int(rect.right()*downsize_factor),
+                                        int(rect.bottom()*downsize_factor)) for rect in old_rectangles])
+        result=new_rectangles,new_dots
+        return result
+    return wrapper
 
 
 class LandmarksFinderDlib():
@@ -35,6 +66,7 @@ class LandmarksFinderDlib():
         # return a tuple of (x, y, w, h)
         return (x, y, w, h)
 
+    @take_care_of_large_img
     def get_landmarks(self, img):
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         dets = self.detector(img, 1)

@@ -1,6 +1,7 @@
 import pyrealsense2 as rs
 
 from .helpers import DepthFiltering, Visualizer
+from ..utils import timing
 
 
 class RSStreaming(DepthFiltering, Visualizer):
@@ -17,8 +18,10 @@ class RSStreaming(DepthFiltering, Visualizer):
 
     def __create_configs(self, width=1280, height=720):
         self.config = rs.config()
-        self.config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
-        self.config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+        # self.config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
+        # self.config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+        self.config.enable_stream(rs.stream.depth, 1280, 720, rs.format.z16, 30)
+        self.config.enable_stream(rs.stream.color, 1280, 720, rs.format.bgr8, 30)
 
     def __start_streaming(self):
         self.profile = self.pipeline.start(self.config)
@@ -29,6 +32,7 @@ class RSStreaming(DepthFiltering, Visualizer):
 
         self.align = rs.align(align_to=align_to)
 
+    @timing
     def get_aligned_frameset(self):
         frames = self.pipeline.wait_for_frames()
         aligned_frames = self.align.process(frames)
@@ -36,6 +40,7 @@ class RSStreaming(DepthFiltering, Visualizer):
         color_frame = aligned_frames.get_color_frame()
         return aligned_depth_frame, color_frame
 
+    @timing
     def get_filtered_frameset(self):
         images = []
         depths = []

@@ -12,15 +12,16 @@ from src.icp import draw_registration_result
 from src.process_data import Landmarks3DFinder
 from src.process_data import LandmarksFinderDlib
 from src.streaming import RSStreaming
-from src.utils import save_ds, absoluteFilePaths, get_image_depth, classify
+from src.utils import save_ds, absoluteFilePaths, get_image_depth, classify, timing
 
 
 class ProcessAntiSpoof():
-    def __init__(self, mode, source_coords, path_to_folder=None):
+    def __init__(self, mode, source_coords, path_to_folder=None,temporal_smoothing=1):
         self.path_to_folder = path_to_folder
         self.dlib_lands = LandmarksFinderDlib()
         self.source_coords = source_coords
         self.mode = mode
+        self.temporal_smoothing=temporal_smoothing
 
         if self.mode in ['data_processing_to_features', 'prediction_from_folder', 'prediction_from_image_and_depth']:
             self.landmarks_3d = Landmarks3DFinder(rs_streaming=None)
@@ -34,12 +35,13 @@ class ProcessAntiSpoof():
                 self.features = []
 
         elif self.mode in ['prediction_from_camera', 'visualize', 'data_collection_from_camera']:
-            self.rs_streaming = RSStreaming(temporal_smoothing=3)
+            self.rs_streaming = RSStreaming(temporal_smoothing=temporal_smoothing)
             self.landmarks_3d = Landmarks3DFinder(rs_streaming=self.rs_streaming)
 
         else:
             raise NotImplementedError(f"Mode {self.mode} not implemented")
 
+    @timing
     def get_frameset(self):
         if self.mode in ['data_processing_to_features', 'prediction_from_folder']:
             try:
@@ -55,10 +57,12 @@ class ProcessAntiSpoof():
             raise ImportError(f"Mode {self.mode} does not require gettinf frameset as it already should exist")
         return image, depth_frame
 
+    @timing
     def get_dets_shapes(self, image):
         dets, shapes = self.dlib_lands.get_landmarks(image)
         return dets, shapes
 
+    @timing
     def get_distances_from_icp(self, shapes, depth_frame, source_raw, draw_icp=False, landmarks_fildering_type='all'):
         # print(len(dets))
         target_raw = self.landmarks_3d.get_3d_landmarks(depth_frame, shapes)
@@ -120,12 +124,12 @@ class ProcessAntiSpoof():
             RSStreaming.visualize_depth(depth)
             dets, shapes = self.get_dets_shapes(image)
             if not shapes:
-                print("No face found")
-                return 0, None
+                # print("No face found")
+                return 0, None,dets, shapes,image
             T, distances, iterations = self.get_distances_from_icp(shapes, depth, self.source_coords, draw_icp=draw_icp)
             classifier = kwargs['classifier']
             prob_of_fake = classify(classifier, distances)
-            return 0, prob_of_fake
+            return 0, prob_of_fake,dets, shapes,image
 
         elif self.mode in ['data_processing_to_features']:
             try:
