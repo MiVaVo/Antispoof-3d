@@ -13,7 +13,7 @@ from src.process_data import Landmarks3DFinder
 from src.process_data import LandmarksFinderDlib
 from src.streaming import RSStreaming
 from src.utils import save_ds, absoluteFilePaths, get_image_depth, classify
-
+from datetime import datetime as dt
 
 class ProcessAntiSpoof():
     def __init__(self, mode, source_coords, path_to_folder=None):
@@ -21,7 +21,7 @@ class ProcessAntiSpoof():
         self.dlib_lands = LandmarksFinderDlib()
         self.source_coords = source_coords
         self.mode = mode
-
+        self.path_to_save_data=None
         if self.mode in ['data_processing_to_features', 'prediction_from_folder', 'prediction_from_image_and_depth']:
             self.landmarks_3d = Landmarks3DFinder(rs_streaming=None)
 
@@ -88,21 +88,25 @@ class ProcessAntiSpoof():
             return 0, prob_of_fake
 
         if self.mode in ['data_collection_from_camera']:
+
             image, depth = self.get_frameset()
             RSStreaming.visualize_img(image)
             RSStreaming.visualize_depth(depth)
 
             data_collection_type = kwargs['ds_type']
+            data_collection_mode = kwargs['ds_mode']
+            if data_collection_type not in ["true",'fake']:
+                raise ValueError
+            if data_collection_mode not in ['train','test']:
+                raise ValueError
             prob_of_save = kwargs['prob_of_save'] if "prob_of_save" in kwargs.keys() else 0.5
 
-            if data_collection_type == 'train':
-                path_to_save_data = '/old/ds/fake_train'
-            elif data_collection_type == 'test':
-                path_to_save_data = '/old/ds/fake_test'
-            else:
-                raise NotImplementedError
-
-            save_ds(path_to_save_data, image, depth) if np.random.rand() > prob_of_save else None
+            appendix_to_string=str(dt.now().strftime("%Y%m%d%H%M%S"))
+            if self.path_to_save_data is None:
+                self.path_to_save_data = f'./ext/ds/{data_collection_type }_{data_collection_mode}_'+appendix_to_string
+            if not os.path.exists(self.path_to_save_data):
+                os.makedirs(self.path_to_save_data)
+            save_ds(self.path_to_save_data, image, depth) if np.random.rand() > prob_of_save else None
 
             return 0, None
 
@@ -134,7 +138,7 @@ class ProcessAntiSpoof():
                 return 0, None
             except UnpicklingError:
                 return 0, None
-            csv_ds_folder = "/home/maksym/Documents/proj_3d/ds/csv_ds"
+            csv_ds_folder = "./ext/ds/csv_ds"
             if image is None:
                 np.savetxt(
                     f'{os.path.join(csv_ds_folder, self.path_to_folder.split("/")[-1])}_{re.sub("[^0-9]", "", str(dt.now()))}.csv',

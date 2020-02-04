@@ -32,6 +32,8 @@ def absoluteFilePaths(directory, ext=".pk"):
         for f in filenames:
             if ext in f:
                 yield os.path.abspath(os.path.join(dirpath, f))
+import os
+
 
 
 def save_ds(path_to_folder, img, depth):
