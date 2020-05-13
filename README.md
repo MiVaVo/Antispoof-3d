@@ -1,7 +1,11 @@
 # Antifspoof-3d
 
 Realtime (20+ FPS)  supervised CPU-only RGB and depth based approach for face spoofing detection (antispoofing). Face of a person is from a test set and was not contained in train set. Visual testing was done on IntelRealsense camera, but algorithm can work on any RGB+D cameras! This algorithm almost never gives False Positives. Bellow you can find error measurements, given different thresholds.
-
+### Run
+```python
+pip install requirements.txt
+python main.py
+```
 ### Demo
 [![Alt Text](Demo.gif)](https://www.youtube.com/watch?v=ek1j272iAmc)
 
