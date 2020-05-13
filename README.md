@@ -6,6 +6,7 @@ Realtime (20+ FPS)  supervised CPU-only RGB and depth based approach for face sp
 [![Alt Text](Demo.gif)](https://www.youtube.com/watch?v=ek1j272iAmc)
 
 ### Validation results (for better threshold selection)
+```
 H0: face is normal(real)
 th=0.832, FRR=0.074, FAR=0.001
 th=0.855, FRR=0.075, FAR=0.000
@@ -13,3 +14,4 @@ th=0.879, FRR=0.082, FAR=0.000
 th=0.903, FRR=0.092, FAR=0.000
 th=0.926, FRR=0.108, FAR=0.000
 th=0.950, FRR=0.123, FAR=0.000
+```
